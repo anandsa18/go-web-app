@@ -1,0 +1,22 @@
+FROM golang:1.22.5 as go-build
+
+WORKDIR /app
+
+COPY go.mod /app
+
+COPY . /app
+
+RUN go mod download
+
+RUN go build -o go-app
+
+
+FROM gcr.io/distroless/base
+
+COPY --from=go-build /app/go-app .
+
+COPY --from=go-build /app/static ./static
+
+EXPOSE 8080
+
+CMD ["./go-app"]
